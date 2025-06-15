@@ -1,0 +1,4 @@
+server/.env
+server/node_modules
+
+frontend/llm-app/node_modules
