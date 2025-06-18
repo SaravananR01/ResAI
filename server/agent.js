@@ -3,12 +3,11 @@ import { GoogleGenAI } from "@google/genai";
 
 const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
-async function main() {
+export async function askGemini(question) {
   const response = await genAI.models.generateContent({
     model: "gemini-2.0-flash",
-    contents: "How does AI work?",
+    contents: question,
   });
   console.log(response.text);
 }
 
-await main();
