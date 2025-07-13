@@ -8,6 +8,8 @@ export async function askGemini(question) {
     model: "gemini-2.0-flash",
     contents: question,
   });
-  console.log(response.text);
+  //console.log(response.text);
+
+  return response.text;
 }
 

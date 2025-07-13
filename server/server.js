@@ -7,7 +7,7 @@ const port=8080 || process.env.PORT;
 
 const app = express();
 
-app.use(cors);
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
@@ -15,10 +15,6 @@ app.listen(port,()=>{
     console.log(`Server Listening on PORT : ${port}`);
 });
 
-app.get('/test',(req,res)=>{
-    console.log('works');
-    res.send("works");
-});
 
 app.post('/ask', async (req,res)=>{
     console.log("call works");
@@ -27,6 +23,7 @@ app.post('/ask', async (req,res)=>{
     try{
         const response =await askGemini(question);
         console.log(response);
+        res.status(200).json({response});
 
     }catch (error){
         res.status(500).json({error:"something went wrong"});
