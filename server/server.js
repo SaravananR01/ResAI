@@ -3,11 +3,17 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { askGemini } from './agent.js';
 import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 //import PdfParse from 'pdf-parse';
 
 const port=8080 || process.env.PORT;
 
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -17,24 +23,44 @@ app.listen(port,()=>{
     console.log(`Server Listening on PORT : ${port}`);
 });
 
-// ask endpoint
-app.post('/ask', async (req,res)=>{
-    console.log("call works");
-    const question = req.body.question;
-    console.log(question);
-    try{
-        const response =await askGemini(question);
-        console.log(response);
-        res.status(200).json({response});
+//upload
+const upload=multer({dest:'uploads/'});
 
-    }catch (error){
-        res.status(500).json({error:"something went wrong"});
+// ask endpoint
+app.post('/ask', upload.single('file'), async (req, res) => {
+    const question = req.body.question;
+    const file = req.file;
+
+    console.log("Received question:", question);
+    if (file) {
+        console.log("Received file:", file.originalname);
+    }
+
+    try {
+        let contextText = '';
+
+        if (file) {
+            const filePath = path.join(__dirname, file.path);
+            contextText = fs.readFileSync(filePath, 'utf-8');
+
+            fs.unlinkSync(filePath);
+        }
+        const combinedPrompt = contextText
+            ? `Context:\n${contextText}\n\nQuestion:\n${question}`
+            : question;
+
+        const response = await askGemini(combinedPrompt);
+        console.log(response);
+        res.status(200).json({ response });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Something went wrong' });
     }
 });
 
 
-//upload
-const upload=multer({dest:'uploads/'});
+
 
 // app.post('/upload',upload.single('file'),async (req,res)=>{
 //     const file=req.file;

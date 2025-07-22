@@ -4,15 +4,37 @@ import { FaPaperclip } from "react-icons/fa";
 import api from '../services/api';
 
 
-function Ask({ onSend }) {
+function Ask() {
   const [query, setQuery] = useState('');
 
   const handleChange = (e) => setQuery(e.target.value);
 
   const handleSubmit = async () => {
-    if (query.trim()) {
-      const response= await api.post('/ask',{question:query});
+    if (!query.trim() && !selectedFile) {
+      alert("Please enter a question or select a file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('question', query);
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+    }
+
+    try {
+      const response = await api.post('/ask', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log(response.data);
       setQuery('');
+      setSelectedFile(null);
+      setSelectedFileName('');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Submission failed');
     }
   };
   const [selectedFileName,setSelectedFileName]=useState('');
