@@ -6,6 +6,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import {ragChain} from './langchain/ragChain.js';
 //import PdfParse from 'pdf-parse';
 
 const port=8080 || process.env.PORT;
@@ -27,36 +28,48 @@ app.listen(port,()=>{
 const upload=multer({dest:'uploads/'});
 
 // ask endpoint
-app.post('/ask', upload.single('file'), async (req, res) => {
-    const question = req.body.question;
-    const file = req.file;
+// app.post('/ask', upload.single('file'), async (req, res) => {
+//     const question = req.body.question;
+//     const file = req.file;
 
-    console.log("Received question:", question);
-    if (file) {
-        console.log("Received file:", file.originalname);
-    }
+//     console.log("Received question:", question);
+//     if (file) {
+//         console.log("Received file:", file.originalname);
+//     }
 
-    try {
-        let contextText = '';
+//     try {
+//         let contextText = '';
 
-        if (file) {
-            const filePath = path.join(__dirname, file.path);
-            contextText = fs.readFileSync(filePath, 'utf-8');
+//         if (file) {
+//             const filePath = path.join(__dirname, file.path);
+//             contextText = fs.readFileSync(filePath, 'utf-8');
 
-            fs.unlinkSync(filePath);
-        }
-        const combinedPrompt = contextText
-            ? `Context:\n${contextText}\n\nQuestion:\n${question}`
-            : question;
+//             fs.unlinkSync(filePath);
+//         }
+//         const combinedPrompt = contextText
+//             ? `Context:\n${contextText}\n\nQuestion:\n${question}`
+//             : question;
 
-        const response = await askGemini(combinedPrompt);
-        console.log(response);
-        res.status(200).json({ response });
+//         const response = await askGemini(combinedPrompt);
+//         console.log(response);
+//         res.status(200).json({ response });
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Something went wrong' });
-    }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Something went wrong' });
+//     }
+// });
+
+app.post('/ask', async (req, res) => {
+  const { question } = req.body;
+
+  try {
+    const response = await ragChain.invoke({ question });
+    res.json({ answer: response });
+  } catch (err) {
+    console.error("RAG error:", err);
+    res.status(500).json({ error: "RAG failed" });
+  }
 });
 
 
