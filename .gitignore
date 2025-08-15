@@ -1,5 +1,7 @@
 server/.env
 server/node_modules
 server/uploads
+server/test-pg.js
+server/db.js
 
 frontend/llm-app/node_modules

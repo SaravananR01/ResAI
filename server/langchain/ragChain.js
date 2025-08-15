@@ -1,9 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { PromptTemplate } from "@langchain/core/prompts";
-import { vectorStore } from "./store.js";
+import vectorStore from "./store.js";
 
-const model = new GoogleGenerativeAI({
+const model = new GoogleGenAI({
   model: "gemini-2.0-flash",
   apiKey: process.env.GEMINI_API_KEY,
 });
