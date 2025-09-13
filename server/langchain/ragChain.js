@@ -1,9 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
-import { RunnableSequence } from "@langchain/core/runnables";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { RunnableSequence, RunnableMap } from "@langchain/core/runnables";
 import { PromptTemplate } from "@langchain/core/prompts";
 import vectorStore from "./store.js";
 
-const model = new GoogleGenAI({
+const model = new ChatGoogleGenerativeAI({
   model: "gemini-2.0-flash",
   apiKey: process.env.GEMINI_API_KEY,
 });
@@ -23,14 +23,16 @@ Question: {question}
 Answer:
 `);
 
+
+
 export const ragChain = RunnableSequence.from([
-  {
+  RunnableMap.from({
     context: async (input) => {
       const docs = await retriever.invoke(input.question);
       return docs.map(doc => doc.pageContent).join("\n\n");
     },
     question: (input) => input.question,
-  },
+  }),
   prompt,
   model,
 ]);
