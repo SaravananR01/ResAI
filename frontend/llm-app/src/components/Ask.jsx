@@ -20,7 +20,7 @@ function Ask() {
     if (selectedFile) {
       formData.append('file', selectedFile);
     }
-
+    console.log(formData);
     try {
       const response = await api.post('/ask', formData, {
         headers: {

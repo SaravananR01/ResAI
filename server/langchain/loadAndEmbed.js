@@ -1,9 +1,11 @@
-import { TextLoader } from "langchain/document_loaders/fs/text";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { vectorStore } from "./store.js";
+import vectorStore from "./store.js";
 
 export async function loadAndEmbed(filePath) {
-  const loader = new TextLoader(filePath);
+  const loader = new PDFLoader(filePath, {
+    splitPages: true,
+  });
   const docs = await loader.load();
 
   const splitter = new RecursiveCharacterTextSplitter({

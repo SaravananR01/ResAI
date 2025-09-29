@@ -1,7 +1,8 @@
 import { Pool } from 'pg';
 import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
-import { OpenAIEmbeddings } from "@langchain/openai";
 import dotenv from 'dotenv/config';
+import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
+
 
 // const password=String("newpassword");
 // console.log(password);
@@ -24,8 +25,8 @@ import dotenv from 'dotenv/config';
 //     pool.end();
 //   });
 
-const embeddings = new OpenAIEmbeddings({
-  model: "text-embedding-3-small",
+const embeddings = new HuggingFaceInferenceEmbeddings({
+  apiKey: process.env.HUGGING_FACE_API
 });
 
 const vectorStore = await PGVectorStore.initialize(embeddings, {

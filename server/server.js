@@ -8,6 +8,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import {ragChain} from './langchain/ragChain.js';
+import {loadAndEmbed} from './langchain/loadAndEmbed.js';
 //import PdfParse from 'pdf-parse';
 
 const port=8080 || process.env.PORT;
@@ -18,8 +19,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.json());
+//app.use(bodyParser.urlencoded({extended:true}));
 
 app.listen(port,()=>{
     console.log(`Server Listening on PORT : ${port}`);
@@ -61,8 +62,20 @@ const upload=multer({dest:'uploads/'});
 //     }
 // });
 
-app.post('/ask', async (req, res) => {
-  const { question } = req.body;
+app.post('/ask', upload.single("file"), async (req, res) => {
+  const { question } = req.body; 
+  const file = req.file; 
+  console.log("Got question:", question);
+  if (file) {
+    console.log("Got file:", file.originalname);
+    console.log("File Path: ", file.path);
+    try {
+      await loadAndEmbed(file.path);
+    } catch (err) {
+      console.error("Error embedding file:", err);
+      return res.status(500).json({ error: "File embedding failed" });
+    }
+  }
 
   try {
     const response = await ragChain.invoke({ question });

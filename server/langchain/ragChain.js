@@ -2,6 +2,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { RunnableSequence, RunnableMap } from "@langchain/core/runnables";
 import { PromptTemplate } from "@langchain/core/prompts";
 import vectorStore from "./store.js";
+import dotenv from "dotenv/config";
 
 const model = new ChatGoogleGenerativeAI({
   model: "gemini-2.0-flash",
